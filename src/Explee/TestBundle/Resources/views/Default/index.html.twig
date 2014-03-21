@@ -1,0 +1,192 @@
+{% extends '::base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+</style>
+{% endblock stylesheets %}
+
+{% block body %}
+
+<div class="container">
+
+<div class="row">
+
+<div class="col-xs-3">
+<p class="lead">search twitter:</p>
+<input type="text" id="condition" class="form-control" value=""/><br/>
+<input type="submit" id="searchTwitter"  class="form-control" value="search"/>
+<br/>
+<p id="twitterContent"></p>
+</div>
+
+<div class="col-xs-3">
+<p class="lead">status du compte:</p>
+<input type="submit" id="getStatus" class="form-control" value="Get"/>
+<br/>
+<p id="compteStatus"></p>
+</div>
+
+<div class="col-xs-3">
+<p class="lead">follow compte 14642331:</p>
+<input type="submit" id="followSomeone" class="btn btn-primary form-control" value="follow"/><br/>
+<p class="lead">unfollow compte 14642331:</p>
+<input type="submit" id="unFollowSomeone" class="form-control btn btn-primary" value="unfollow"/><br/><br/>
+<p id="alertMsg"></p>
+</div>
+
+<div class="col-xs-3">
+<p class="lead">write your twitter:</p>
+<textarea id="newTwitter" class="form-control"></textarea><br/>
+<input type="submit" id="publishTwitter" class="form-control" value="publish"/>
+<br/>
+<p id="newTwitterContent"></p>
+</div>
+
+</div>
+
+</div>
+
+{% endblock body %}
+
+{% block javascripts %}
+<script>
+$(function() {
+
+    /*search twitter*/
+    $("#searchTwitter").click(function(e) {
+    
+        e.preventDefault();
+        
+        var con = $("#condition").val();
+        var htmlDom = "";
+        
+        //var path = Routing.generate('search_twitter', {con: con}, false);        
+        //alert(path);
+        
+        $("#twitterContent").hide("slow");
+        $.ajax({
+            type: 'GET',
+            url: Routing.generate('search_twitter', {con: con}, false),
+            dataType: "json",
+            success: function(data, textStatus) {
+            		
+				  var data = JSON.parse(data); //eval				  
+				  $.each(data, function(key, item) {
+			           htmlDom +="<div><strong>" + item.created_at + "</strong></div>" + 
+			                    "<div>" + item.text    + "</div>" +
+			                    "<div><strong><em>" + item.lang + "</em></strong></div><hr/>";
+			        });
+			      
+			      $("#twitterContent").html(htmlDom);
+				  $("#twitterContent").show("slow"); 
+                  
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown){
+            	alert(errorThrown);
+            }
+         });
+       });  
+      
+        /*get compte status*/
+ 		$("#getStatus").click(function(e) {
+    
+        e.preventDefault();
+        
+        var htmlDom = "";
+        
+        $("#compteStatus").hide("slow");
+        $.ajax({
+            type: 'GET',
+            url: Routing.generate('get_status', false),
+            dataType: "json",
+            success: function(data, textStatus) {
+            		
+				  var data = JSON.parse(data); 
+			
+			  		htmlDom +="<div><strong>PROFIL: </strong><img src='"+data.profile_image_url+"'/></div>"+
+			  				  "<div><strong>ID: </strong>" + data.id + "</div>" + 
+		                      "<div><strong>NAME: </strong>" + data.name    + "</div>" +
+		                      "<div><strong>SCREEN NAME: </strong>" + data.screen_name + "</div>"+
+		                      "<div><strong>CREATED AT: </strong>" + data.created_at + "</div>"+
+		                      "<div><strong>NEW TWITTER: </strong> " + data.text + "</div><hr/>";
+				
+				  
+			      $("#compteStatus").html(htmlDom);
+				  $("#compteStatus").show("slow"); 
+                  
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown){
+            	alert(errorThrown);
+            }
+          });       
+       });
+       
+       /*follow someone*/
+       $("#followSomeone").bind("click",function(e) {
+          twitterSomeone(e,"follow");    
+       });
+       
+       /*unfollow someone*/
+       $("#unFollowSomeone").bind("click",function(e) {
+          twitterSomeone(e,"unfollow");    
+       });  
+       
+       function twitterSomeone(e,action){
+       		e.preventDefault();
+        
+	        var htmlDom = "";
+	        var action = action;
+	        
+	        $("#alertMsg").hide("slow");
+	        $.ajax({
+	            type: 'GET',
+	            url: Routing.generate('twitter_someone',{action: action}, false),
+	            dataType: "json",
+	            success: function(data, textStatus) {
+	            		
+					  var data = JSON.parse(data); 
+				
+				  		htmlDom += "<div><strong>stauts: " + data.status + "</strong></div>";
+	
+				      $("#alertMsg").html(htmlDom);
+					  $("#alertMsg").show("slow"); 
+	                  
+	            },
+	            error: function(XMLHttpRequest, textStatus, errorThrown){
+	            	alert(errorThrown);
+	            }
+	          }); 
+       }
+       
+       /*publish a twitter*/
+       $("#publishTwitter").click(function(e) {
+    
+        e.preventDefault();
+        
+        var text = $("#newTwitter").val();
+        var htmlDom = "";
+        
+        $("#newTwitterContent").hide("slow");
+        $.ajax({
+            type: 'GET',
+            url: Routing.generate('publish_twitter', {text: text}, false),
+            dataType: "json",
+            success: function(data, textStatus) {
+            		
+				  var data = JSON.parse(data); 			  
+				  //alert(data);
+			      htmlDom += "<div><strong>Publish time:</strong> " + data.created_at + "</div>"+
+			       		     "<div><strong>Message:</strong> " + data.text + "</div>";
+			      
+			      $("#newTwitterContent").html(htmlDom);
+				  $("#newTwitterContent").show("slow"); 
+                  
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown){
+            	alert(errorThrown);
+            }
+         });
+       }); 
+});
+</script>
+{% endblock javascripts %}
