@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link href='{{asset("css/bootstrap.min.css")}}' rel="stylesheet">
+        
+        <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+		<script src="{{ asset('js/bundles/fosjsrouting/js/router.js') }}"></script>
+		<script src="{{ asset('js/fos_js_routes.js') }}"></script>
+		<script src="{{ asset('js/jquery.js') }}"></script>
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
